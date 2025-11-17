@@ -1,10 +1,12 @@
 package org.unitedlands.utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.unitedlands.UnitedLib;
 
 import net.kyori.adventure.audience.Audience;
@@ -20,82 +22,120 @@ public class Messenger {
         plugin = UnitedLib.getPlugin(UnitedLib.class);
     }
 
-    public static void broadCastMessage(String message, String prefix) {
+    public static void send(
+            Collection<? extends Audience> targets,
+            List<String> lines,
+            Map<String, String> replacements,
+            String prefix) {
 
-        if (message == null || message.isEmpty())
+        if (targets == null || targets.isEmpty()) {
             return;
-
-        Component messageComponent = MiniMessage.miniMessage().deserialize(message);
-        if (prefix != null && !prefix.isEmpty()) {
-            var prefixComponent = MiniMessage.miniMessage().deserialize(prefix);
-            messageComponent = prefixComponent.append(messageComponent);
+        }
+        if (lines == null || lines.isEmpty()) {
+            return;
         }
 
-        Audience all = Bukkit.getServer();
-        all.sendMessage(messageComponent);
+        Component component = buildComponent(lines, replacements, prefix);
+
+        var receiverAudience = Audience.audience(targets);
+        receiverAudience.sendMessage(component);
+
     }
 
-    public static void broadcastMessages(List<String> messages, Map<String, String> replacements, String prefix) {
+    private static Component buildComponent(List<String> lines, Map<String, String> replacements, String prefix) {
 
-        if (messages == null || messages.isEmpty())
-            return;
-
-        for (String message : messages) {
-            if (replacements != null) {
-                for (var entry : replacements.entrySet()) {
-                    message = message.replace("{" + entry.getKey() + "}",
-                            entry.getValue() != null ? entry.getValue() : "");
-                }
+        List<String> processed = new ArrayList<>(lines.size());
+        for (String line : lines) {
+            String modified = applyReplacements(line, replacements);
+            if (prefix != null && !prefix.isEmpty()) {
+                modified = prefix + modified;
             }
-            broadCastMessage(message, prefix);
-        }
-    }
-
-    public static void sendMessage(CommandSender target, String message, String prefix) {
-
-        if (message == null || message.isEmpty())
-            return;
-
-        Component messageComponent = MiniMessage.miniMessage().deserialize(message);
-        if (prefix != null && !prefix.isEmpty()) {
-            var prefixComponent = MiniMessage.miniMessage().deserialize(prefix);
-            messageComponent = prefixComponent.append(messageComponent);
+            processed.add(modified);
         }
 
-        Audience receiver = target;
-        receiver.sendMessage(messageComponent);
+        String joined = String.join("\n", processed);
+        return MiniMessage.miniMessage().deserialize(joined);
     }
 
-    public static void sendMessage(List<CommandSender> targets, String message, String prefix) {
-
-        if (message == null || message.isEmpty())
-            return;
-
-        Component messageComponent = MiniMessage.miniMessage().deserialize(message);
-        if (prefix != null && !prefix.isEmpty()) {
-            var prefixComponent = MiniMessage.miniMessage().deserialize(prefix);
-            messageComponent = prefixComponent.append(messageComponent);
+    private static String applyReplacements(String input, Map<String, String> replacements) {
+        if (replacements == null || replacements.isEmpty()) {
+            return input;
         }
 
-        Audience receivers = Audience.audience(targets.toArray(new Audience[0]));
-        receivers.sendMessage(messageComponent);
+        String output = input;
+        for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            output = output.replace("{" + entry.getKey() + "}", entry.getValue());
+        }
+        return output;
     }
 
-    public static void sendMessages(CommandSender target, List<String> messages,
+    // -------------------------------------------------------------------------------------------
+    // Overloads: single sender, single String
+    // -------------------------------------------------------------------------------------------
+
+    public static void sendMessage(Audience target, String message) {
+        sendMessage(target, message, Collections.emptyMap(), null);
+    }
+
+    public static void sendMessage(Audience target, String message, Map<String, String> replacements) {
+        sendMessage(target, message, replacements, null);
+    }
+
+    public static void sendMessage(Audience target, String message, Map<String, String> replacements, String prefix) {
+        Objects.requireNonNull(message, "message");
+        send(Collections.singletonList(target), Collections.singletonList(message), replacements, prefix);
+    }
+
+    // -------------------------------------------------------------------------------------------
+    // Overloads: multiple targets, single String
+    // -------------------------------------------------------------------------------------------
+
+    public static void sendMessage(Collection<? extends Audience> targets, String message) {
+        sendMessage(targets, message, Collections.emptyMap(), null);
+    }
+
+    public static void sendMessage(Collection<? extends Audience> targets, String message, Map<String, String> replacements) {
+        sendMessage(targets, message, replacements, null);
+    }
+
+    public static void sendMessage(Collection<? extends Audience> targets, String message, Map<String, String> replacements,
+            String prefix) {
+        Objects.requireNonNull(message, "message");
+        send(targets, Collections.singletonList(message), replacements, prefix);
+    }
+
+    // -------------------------------------------------------------------------------------------
+    // Overloads: single sender, multiple lines
+    // -------------------------------------------------------------------------------------------
+
+    public static void sendMessage(Audience target, List<String> lines) {
+        sendMessage(target, lines, Collections.emptyMap(), null);
+    }
+
+    public static void sendMessage(Audience target, List<String> lines, Map<String, String> replacements) {
+        sendMessage(target, lines, replacements, null);
+    }
+
+    public static void sendMessage(Audience target, List<String> lines, Map<String, String> replacements, String prefix) {
+        send(Collections.singletonList(target), lines, replacements, prefix);
+    }
+
+    // -------------------------------------------------------------------------------------------
+    // Overloads: multiple targets, multiple lines
+    // -------------------------------------------------------------------------------------------
+
+    public static void sendMessage(Collection<? extends Audience> targets, List<String> lines) {
+        sendMessage(targets, lines, Collections.emptyMap(), null);
+    }
+
+    public static void sendMessage(Collection<? extends Audience> targets, List<String> lines,
+            Map<String, String> replacements) {
+        sendMessage(targets, lines, replacements, null);
+    }
+
+    public static void sendMessage(Collection<? extends Audience> targets, List<String> lines,
             Map<String, String> replacements, String prefix) {
-
-        if (messages == null || messages.isEmpty())
-            return;
-
-        for (String message : messages) {
-            if (replacements != null) {
-                for (var entry : replacements.entrySet()) {
-                    message = message.replace("{" + entry.getKey() + "}",
-                            entry.getValue() != null ? entry.getValue() : "");
-                }
-            }
-            sendMessage(target, message, prefix);
-        }
+        send(targets, lines, replacements, prefix);
     }
 
 }
