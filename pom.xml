@@ -58,19 +58,19 @@
     <dependency>
       <groupId>io.papermc.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>1.21.5-R0.1-SNAPSHOT</version>
+      <version>1.21.10-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.LoneDev6</groupId>
+      <groupId>dev.lone</groupId>
       <artifactId>api-itemsadder</artifactId>
-      <version>3.6.3-beta-14</version>
+      <version>4.0.10</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.lumine</groupId>
       <artifactId>Mythic-Dist</artifactId>
-      <version>5.7.2</version>
+      <version>5.10.1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
