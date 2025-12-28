@@ -42,6 +42,21 @@ public class Messenger {
 
     }
 
+    public static void send(Collection<? extends Audience> targets, Component messageComponent) {
+        if (targets == null || targets.isEmpty()) {
+            return;
+        }
+        var receiverAudience = Audience.audience(targets);
+        receiverAudience.sendMessage(messageComponent);
+    }
+
+    public static void send(Audience target, Component messageComponent) {
+        if (target == null) {
+            return;
+        }
+        send(Collections.singleton(target), messageComponent);
+    }
+
     private static Component buildComponent(List<String> lines, Map<String, String> replacements, String prefix) {
 
         List<String> processed = new ArrayList<>(lines.size());
@@ -64,10 +79,38 @@ public class Messenger {
 
         String output = input;
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            if (entry.getValue() == null)
+                continue;
             output = output.replace("{" + entry.getKey() + "}", entry.getValue());
         }
         return output;
     }
+
+
+    public static Component getMessage(String line) {
+        return buildComponent(Collections.singletonList(line), null, null);
+    }
+
+    public static Component getMessage(String line, Map<String, String> replacements) {
+        return buildComponent(Collections.singletonList(line), replacements, null);
+    }
+
+    public static Component getMessage(String line, Map<String, String> replacements, String prefix) {
+        return buildComponent(Collections.singletonList(line), replacements, prefix);
+    }
+
+    public static Component getMessage(List<String> lines) {
+        return buildComponent(lines, null, null);
+    }
+
+    public static Component getMessage(List<String> lines, Map<String, String> replacements) {
+        return buildComponent(lines, replacements, null);
+    }
+
+    public static Component getMessage(List<String> lines, Map<String, String> replacements, String prefix) {
+        return buildComponent(lines, replacements, prefix);
+    }
+
 
     // -------------------------------------------------------------------------------------------
     // Overloads: single sender, single String
