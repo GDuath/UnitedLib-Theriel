@@ -14,11 +14,23 @@ public class Logger {
         plugin.getLogger().info(message);
     }
 
+    public static void log(String message, String prefix) {
+        plugin.getLogger().info("[" + prefix + "] " + message);
+    }
+
     public static void logWarning(String message) {
         plugin.getLogger().warning(message);
     }
 
+    public static void logWarning(String message, String prefix) {
+        plugin.getLogger().warning("[" + prefix + "] " + message);
+    }
+
     public static void logError(String message) {
         plugin.getLogger().severe(message);
+    }
+
+    public static void logError(String message, String prefix) {
+        plugin.getLogger().severe("[" + prefix + "] " + message);
     }
 }
