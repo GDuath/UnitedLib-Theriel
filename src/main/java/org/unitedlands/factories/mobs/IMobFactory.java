@@ -6,4 +6,5 @@ import org.bukkit.Location;
 
 public interface IMobFactory {
     UUID createMobAtLocation(String mobType, Location location);
+    UUID createMobAtLocation(String mobType, Location location, double level);
 }
