@@ -12,9 +12,13 @@ public class VanillaMobFactory extends BaseMobFactory {
     public VanillaMobFactory() {
 
     }
+    
+    public UUID createMobAtLocation(String mobType, Location location) {
+        return createMobAtLocation(mobType, location, 1);
+    }
 
     @Override
-    public UUID createMobAtLocation(String mobType, Location location) {
+    public UUID createMobAtLocation(String mobType, Location location, double level) {
         try {
             var entityType = EntityType.valueOf(mobType);
             var entity = (LivingEntity) location.getWorld().spawnEntity(location, entityType);

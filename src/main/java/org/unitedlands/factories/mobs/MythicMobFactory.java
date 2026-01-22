@@ -19,9 +19,14 @@ public class MythicMobFactory extends BaseMobFactory {
 
     @Override
     public UUID createMobAtLocation(String mobType, Location location) {
+        return createMobAtLocation(mobType, location, 1);
+    }
+
+    @Override
+    public UUID createMobAtLocation(String mobType, Location location, double level) {
         var mythicMob = MythicBukkit.inst().getMobManager().getMythicMob(mobType).orElse(null);
         if (mythicMob != null) {
-            ActiveMob activeMythicMob = MythicBukkit.inst().getMobManager().spawnMob(mobType, location);
+            ActiveMob activeMythicMob = MythicBukkit.inst().getMobManager().spawnMob(mobType, location, level);
             return activeMythicMob.getUniqueId();
         } else {
             try {
