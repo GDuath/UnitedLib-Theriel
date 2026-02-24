@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -67,4 +68,26 @@ public class VanillaItemFactory extends BaseItemFactory {
                 .map(Enum::name) // gets the name as a String
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean isCustomItem(ItemStack item) {
+        return false;
+    }
+
+    @Override
+    public String getId(ItemStack itemStack) {
+        return itemStack.getType().toString();
+    }
+
+    @Override
+    public void placeBlock(String id, Location location) {
+        var material = Material.getMaterial(id);
+        if (material == null) {
+            Logger.logError("Could not place block " + id);
+            return;
+        }
+        location.getBlock().setType(material);
+    }
+
+
 }

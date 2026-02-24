@@ -5,6 +5,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.factories.items.ItemsAdderFactory;
+import org.unitedlands.factories.items.NexoFactory;
 import org.unitedlands.factories.items.VanillaItemFactory;
 import org.unitedlands.factories.mobs.IMobFactory;
 import org.unitedlands.factories.mobs.MythicMobFactory;
@@ -36,7 +37,12 @@ public class UnitedLib extends JavaPlugin {
     private void loadFactories() {
 
         Plugin itemsAdder = Bukkit.getPluginManager().getPlugin("ItemsAdder");
-        if (itemsAdder != null && itemsAdder.isEnabled()) {
+        Plugin nexo = Bukkit.getPluginManager().getPlugin("Nexo");
+
+        if (nexo != null && nexo.isEnabled()) {
+            Logger.log("Nexo found, using custom item factory.");
+            itemFactory = new NexoFactory();
+        } else if (itemsAdder != null && itemsAdder.isEnabled()) {
             Logger.log("ItemsAdder found, using custom item factory.");
             itemFactory = new ItemsAdderFactory();
         } else {
