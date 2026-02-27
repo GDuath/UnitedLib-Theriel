@@ -37,6 +37,9 @@ public abstract class BaseItemFactory implements IItemFactory {
     public abstract String getFilterName(ItemStack itemStack);
 
     @Override
+    public abstract String getDisplayName(ItemStack itemStack);
+
+    @Override
     public abstract boolean isItemInInventory(Inventory inventory, ItemStack item);
 
     @Override

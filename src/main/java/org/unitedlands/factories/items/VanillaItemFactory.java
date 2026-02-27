@@ -9,7 +9,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Logger;
+
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class VanillaItemFactory extends BaseItemFactory {
 
@@ -63,6 +66,11 @@ public class VanillaItemFactory extends BaseItemFactory {
     }
 
     @Override
+    public String getDisplayName(ItemStack itemStack) {
+        return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
+    }
+
+    @Override
     public List<String> getItemList() {
         return Arrays.stream(Material.values())
                 .map(Enum::name) // gets the name as a String
@@ -88,6 +96,5 @@ public class VanillaItemFactory extends BaseItemFactory {
         }
         location.getBlock().setType(material);
     }
-
 
 }

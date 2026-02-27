@@ -10,12 +10,15 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Logger;
 
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.api.NexoFurniture;
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
+
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class NexoFactory extends BaseItemFactory {
 
@@ -119,6 +122,16 @@ public class NexoFactory extends BaseItemFactory {
             return NexoItems.idFromItem(customItem);
         } else {
             return itemStack.getType().toString();
+        }
+    }
+
+    @Override
+    public String getDisplayName(ItemStack itemStack) {
+        ItemBuilder customItem = NexoItems.builderFromItem(itemStack);
+        if (customItem != null) {
+            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
+        } else {
+            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
         }
     }
 

@@ -16,6 +16,7 @@ public interface IItemFactory {
     boolean isValidItem(String itemName);
     String getId(ItemStack itemStack);
     String getFilterName(ItemStack itemStack);
+    String getDisplayName(ItemStack itemStack);
     boolean isItemInInventory(Inventory inventory, ItemStack item);
 
     void placeBlock(String id, Location location);

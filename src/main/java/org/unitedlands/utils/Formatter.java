@@ -35,4 +35,9 @@ public class Formatter {
         return completions;
     }
 
+    public static String removeLegacyFormatting(String string)
+    {
+        return string.replaceAll("(?i)[§&][0-9A-FK-OR]", "");
+    }
+
 }
