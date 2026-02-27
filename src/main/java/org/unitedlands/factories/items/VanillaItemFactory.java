@@ -5,10 +5,14 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Logger;
+
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class VanillaItemFactory extends BaseItemFactory {
 
@@ -62,9 +66,35 @@ public class VanillaItemFactory extends BaseItemFactory {
     }
 
     @Override
+    public String getDisplayName(ItemStack itemStack) {
+        return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
+    }
+
+    @Override
     public List<String> getItemList() {
         return Arrays.stream(Material.values())
                 .map(Enum::name) // gets the name as a String
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean isCustomItem(ItemStack item) {
+        return false;
+    }
+
+    @Override
+    public String getId(ItemStack itemStack) {
+        return itemStack.getType().toString();
+    }
+
+    @Override
+    public void placeBlock(String id, Location location) {
+        var material = Material.getMaterial(id);
+        if (material == null) {
+            Logger.logError("Could not place block " + id);
+            return;
+        }
+        location.getBlock().setType(material);
+    }
+
 }

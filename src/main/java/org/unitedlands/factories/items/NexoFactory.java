@@ -7,48 +7,52 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Logger;
 
-import dev.lone.itemsadder.api.CustomBlock;
-import dev.lone.itemsadder.api.CustomStack;
-import dev.lone.itemsadder.api.ItemsAdder;
+import com.nexomc.nexo.api.NexoBlocks;
+import com.nexomc.nexo.api.NexoFurniture;
+import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
+
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
-public class ItemsAdderFactory extends BaseItemFactory {
+public class NexoFactory extends BaseItemFactory {
 
     @Override
     public boolean isItem(ItemStack item1, ItemStack item2) {
-        CustomStack customStack1 = CustomStack.byItemStack(item1);
-        CustomStack customStack2 = CustomStack.byItemStack(item2);
+
+        ItemBuilder customStack1 = NexoItems.builderFromItem(item1);
+        ItemBuilder customStack2 = NexoItems.builderFromItem(item2);
 
         if (customStack1 != null) {
 
-            Logger.log(customStack1.getNamespacedID());
+            Logger.log(NexoItems.idFromItem(customStack1));
             if (customStack2 == null) {
                 return false;
             } else {
-                Logger.log(customStack2.getNamespacedID());
-                return customStack1.matchNamespacedID(customStack2);
+                Logger.log(NexoItems.idFromItem(customStack2));
+                return NexoItems.isSameId(item1, item2);
             }
         } else {
             if (customStack2 != null) {
-                Logger.log(customStack2.getNamespacedID());
+                Logger.log(NexoItems.idFromItem(customStack2));
                 return false;
             } else {
                 return item1.isSimilar(item2);
             }
         }
+
     }
 
     @Override
     public ItemStack getItemStack(String material, int amount) {
-
-        CustomStack customStack = CustomStack.getInstance(material);
+        ItemBuilder customStack = NexoItems.itemFromId(material);
         if (customStack != null) {
-            var itemStack = customStack.getItemStack();
+            var itemStack = customStack.build();
             itemStack.setAmount(amount);
             return itemStack;
         } else {
@@ -61,16 +65,14 @@ public class ItemsAdderFactory extends BaseItemFactory {
                 Logger.logError("Vanilla material \"" + material + "\" not found");
             }
         }
-
         return null;
     }
 
     @Override
     public ItemStack getItemStack(String material, int minAmount, int maxAmount) {
-
-        CustomStack customStack = CustomStack.getInstance(material);
+        ItemBuilder customStack = NexoItems.itemFromId(material);
         if (customStack != null) {
-            var itemStack = customStack.getItemStack();
+            var itemStack = customStack.build();
             itemStack.setAmount(ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1));
             return itemStack;
         } else {
@@ -83,31 +85,22 @@ public class ItemsAdderFactory extends BaseItemFactory {
                 Logger.logError("Vanilla material \"" + material + "\" not found");
             }
         }
-
         return null;
     }
 
     @Override
-    public boolean isItemInInventory(Inventory inventory, ItemStack item) {
-        CustomStack customItem = CustomStack.byItemStack(item);
-        for (var contentItem : inventory.getContents()) {
-            if (contentItem == null || contentItem.getType() == Material.AIR)
-                continue;
-            var contentCustomItem = CustomStack.byItemStack(contentItem);
-            if (customItem != null && contentCustomItem != null) {
-                if (customItem.getNamespacedID().equals(contentCustomItem.getNamespacedID()))
-                    return true;
-            } else if (customItem == null && contentCustomItem == null) {
-                if (item.getType() == contentItem.getType())
-                    return true;
-            }
-        }
-        return false;
+    public List<String> getItemList() {
+        var items = Arrays.stream(Material.values())
+                .map(Enum::name) // gets the name as a String
+                .collect(Collectors.toList());
+        var customItems = NexoItems.items().stream().map(i -> NexoItems.idFromItem(i)).collect(Collectors.toList());
+        items.addAll(customItems);
+        return items;
     }
 
     @Override
     public boolean isValidItem(String itemName) {
-        CustomStack customItem = CustomStack.getInstance(itemName);
+        ItemBuilder customItem = NexoItems.itemFromId(itemName);
         if (customItem != null) {
             return true;
         } else {
@@ -119,15 +112,14 @@ public class ItemsAdderFactory extends BaseItemFactory {
                 return false;
             }
         }
-
         return false;
     }
 
     @Override
     public String getFilterName(ItemStack itemStack) {
-        CustomStack customItem = CustomStack.byItemStack(itemStack);
+        ItemBuilder customItem = NexoItems.builderFromItem(itemStack);
         if (customItem != null) {
-            return customItem.getNamespacedID();
+            return NexoItems.idFromItem(customItem);
         } else {
             return itemStack.getType().toString();
         }
@@ -135,36 +127,41 @@ public class ItemsAdderFactory extends BaseItemFactory {
 
     @Override
     public String getDisplayName(ItemStack itemStack) {
-        CustomStack customItem = CustomStack.byItemStack(itemStack);
+        ItemBuilder customItem = NexoItems.builderFromItem(itemStack);
         if (customItem != null) {
-            return Formatter.removeLegacyFormatting(customItem.getDisplayName());
+            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
         } else {
             return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
         }
     }
 
     @Override
-    public List<String> getItemList() {
-        var items = Arrays.stream(Material.values())
-                .map(Enum::name) // gets the name as a String
-                .collect(Collectors.toList());
-        var customItems = ItemsAdder.getAllItems().stream().filter(i -> !i.getNamespace().startsWith("_"))
-                .map(i -> i.getNamespacedID()).collect(Collectors.toList());
-        items.addAll(customItems);
-        return items;
+    public boolean isItemInInventory(Inventory inventory, ItemStack item) {
+        ItemBuilder customItem = NexoItems.builderFromItem(item);
+        for (var contentItem : inventory.getContents()) {
+            if (contentItem == null || contentItem.getType() == Material.AIR)
+                continue;
+            var contentCustomItem = NexoItems.builderFromItem(contentItem);
+            if (customItem != null && contentCustomItem != null) {
+                return NexoItems.isSameId(contentItem, item);
+            } else if (customItem == null && contentCustomItem == null) {
+                if (item.getType() == contentItem.getType())
+                    return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean isCustomItem(ItemStack item) {
-        CustomStack customItem = CustomStack.byItemStack(item);
-        return customItem != null;
+        return NexoItems.exists(item);
     }
 
     @Override
     public String getId(ItemStack itemStack) {
-        CustomStack customItem = CustomStack.byItemStack(itemStack);
+        ItemBuilder customItem = NexoItems.builderFromItem(itemStack);
         if (customItem != null) {
-            return customItem.getNamespacedID();
+            return NexoItems.idFromItem(customItem);
         } else {
             return itemStack.getType().toString();
         }
@@ -172,11 +169,20 @@ public class ItemsAdderFactory extends BaseItemFactory {
 
     @Override
     public void placeBlock(String id, Location location) {
-        var customBlock = CustomBlock.place(id, location);
-        if (customBlock == null) {
+        try {
+            if (NexoBlocks.isCustomBlock(id)) {
+                NexoBlocks.place(id, location);
+                return;
+            }
+            if (NexoFurniture.isFurniture(id)) {
+                NexoFurniture.place(id, location, 0, BlockFace.DOWN);
+                return;
+            }
+
+        } catch (Exception ex) {
             Logger.logError("Could not place block " + id);
-            return;
         }
+
     }
 
 }
