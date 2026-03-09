@@ -128,10 +128,13 @@ public class NexoFactory extends BaseItemFactory {
     @Override
     public String getDisplayName(ItemStack itemStack) {
         ItemBuilder customItem = NexoItems.builderFromItem(itemStack);
+        // Set amount to 1 to avoid parsing errors for stacks that exceed max stack size
         if (customItem != null) {
-            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
+            customItem.setAmount(1);
+            return Formatter.removeLegacyFormatting(
+                    PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
         } else {
-            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
+            return Formatter.formatReadable(itemStack.getType().toString());
         }
     }
 

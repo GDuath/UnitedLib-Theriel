@@ -12,8 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Logger;
 
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-
 public class VanillaItemFactory extends BaseItemFactory {
 
     @Override
@@ -67,7 +65,7 @@ public class VanillaItemFactory extends BaseItemFactory {
 
     @Override
     public String getDisplayName(ItemStack itemStack) {
-        return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
+        return Formatter.formatReadable(itemStack.getType().toString());
     }
 
     @Override

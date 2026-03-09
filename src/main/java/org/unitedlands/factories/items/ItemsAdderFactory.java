@@ -15,7 +15,6 @@ import org.unitedlands.utils.Logger;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ItemsAdderFactory extends BaseItemFactory {
 
@@ -136,10 +135,11 @@ public class ItemsAdderFactory extends BaseItemFactory {
     @Override
     public String getDisplayName(ItemStack itemStack) {
         CustomStack customItem = CustomStack.byItemStack(itemStack);
+        // Set amount to 1 to avoid parsing errors for stacks that exceed max stack size
         if (customItem != null) {
             return Formatter.removeLegacyFormatting(customItem.getDisplayName());
         } else {
-            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
+            return Formatter.formatReadable(itemStack.getType().toString());
         }
     }
 
