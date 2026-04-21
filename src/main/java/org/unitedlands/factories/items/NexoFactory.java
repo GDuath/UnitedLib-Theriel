@@ -29,23 +29,18 @@ public class NexoFactory extends BaseItemFactory {
         ItemBuilder customStack2 = NexoItems.builderFromItem(item2);
 
         if (customStack1 != null) {
-
-            Logger.log(NexoItems.idFromItem(customStack1));
             if (customStack2 == null) {
                 return false;
             } else {
-                Logger.log(NexoItems.idFromItem(customStack2));
                 return NexoItems.isSameId(item1, item2);
             }
         } else {
             if (customStack2 != null) {
-                Logger.log(NexoItems.idFromItem(customStack2));
                 return false;
             } else {
                 return item1.isSimilar(item2);
             }
         }
-
     }
 
     @Override
