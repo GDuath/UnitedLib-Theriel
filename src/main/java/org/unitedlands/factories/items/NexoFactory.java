@@ -171,10 +171,17 @@ public class NexoFactory extends BaseItemFactory {
             if (NexoBlocks.isCustomBlock(id)) {
                 NexoBlocks.place(id, location);
                 return;
-            }
-            if (NexoFurniture.isFurniture(id)) {
-                NexoFurniture.place(id, location, 0, BlockFace.DOWN);
-                return;
+            } else {
+                if (NexoFurniture.isFurniture(id)) {
+                    NexoFurniture.place(id, location, 0, BlockFace.DOWN);
+                    return;
+                } else {
+                    var vanillaMaterial = Material.valueOf(id);
+                    if (vanillaMaterial != null) {
+                        location.getBlock().setType(vanillaMaterial);
+                    }
+
+                }
             }
 
         } catch (Exception ex) {
