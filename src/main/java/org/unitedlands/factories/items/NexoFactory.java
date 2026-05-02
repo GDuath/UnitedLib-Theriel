@@ -29,23 +29,18 @@ public class NexoFactory extends BaseItemFactory {
         ItemBuilder customStack2 = NexoItems.builderFromItem(item2);
 
         if (customStack1 != null) {
-
-            Logger.log(NexoItems.idFromItem(customStack1));
             if (customStack2 == null) {
                 return false;
             } else {
-                Logger.log(NexoItems.idFromItem(customStack2));
                 return NexoItems.isSameId(item1, item2);
             }
         } else {
             if (customStack2 != null) {
-                Logger.log(NexoItems.idFromItem(customStack2));
                 return false;
             } else {
                 return item1.isSimilar(item2);
             }
         }
-
     }
 
     @Override
@@ -128,10 +123,13 @@ public class NexoFactory extends BaseItemFactory {
     @Override
     public String getDisplayName(ItemStack itemStack) {
         ItemBuilder customItem = NexoItems.builderFromItem(itemStack);
+        // Set amount to 1 to avoid parsing errors for stacks that exceed max stack size
         if (customItem != null) {
-            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
+            customItem.setAmount(1);
+            return Formatter.removeLegacyFormatting(
+                    PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
         } else {
-            return Formatter.removeLegacyFormatting(PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()));
+            return Formatter.formatReadable(itemStack.getType().toString());
         }
     }
 
@@ -173,10 +171,17 @@ public class NexoFactory extends BaseItemFactory {
             if (NexoBlocks.isCustomBlock(id)) {
                 NexoBlocks.place(id, location);
                 return;
-            }
-            if (NexoFurniture.isFurniture(id)) {
-                NexoFurniture.place(id, location, 0, BlockFace.DOWN);
-                return;
+            } else {
+                if (NexoFurniture.isFurniture(id)) {
+                    NexoFurniture.place(id, location, 0, BlockFace.DOWN);
+                    return;
+                } else {
+                    var vanillaMaterial = Material.valueOf(id);
+                    if (vanillaMaterial != null) {
+                        location.getBlock().setType(vanillaMaterial);
+                    }
+
+                }
             }
 
         } catch (Exception ex) {

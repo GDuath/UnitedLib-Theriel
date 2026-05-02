@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.unitedlands.utils.Logger;
 
@@ -40,5 +41,18 @@ public class MythicMobFactory extends BaseMobFactory {
         }
         return null;
     }
+
+    public UUID createMobAtLocation(String mobType, Location location, Player owner, double level) {
+        var mythicMob = MythicBukkit.inst().getMobManager().getMythicMob(mobType).orElse(null);
+        if (mythicMob != null) {
+            ActiveMob activeMythicMob = MythicBukkit.inst().getMobManager().spawnMob(mobType, location, level);
+            activeMythicMob.setOwnerUUID(owner.getUniqueId());
+            return activeMythicMob.getUniqueId();
+        } else {
+            Logger.logError("Unable to create custom mob " + mobType + ", vanilla mobs are not supported as minions.");
+        }
+        return null;
+    }
+
 
 }
