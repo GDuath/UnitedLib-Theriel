@@ -1,6 +1,8 @@
 package org.unitedlands.classes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.unitedlands.interfaces.IMessageProvider;
@@ -26,6 +28,19 @@ public abstract class AbstractConfigMessageProvider implements IMessageProvider 
     @Override
     public List<String> getList(String key) {
         return config.getStringList(key);
+    }
+
+    @Override
+    public Map<String, String> getSection(String sectionKey) {
+        var section = config.getConfigurationSection(sectionKey);
+        if (section == null)
+            return new HashMap<>();
+
+        Map<String, String> keyValues = new HashMap<>();
+        for (var key : section.getKeys(false)) {
+            keyValues.put(key, section.getString(key));
+        }
+        return keyValues;
     }
 
 }

@@ -1,5 +1,6 @@
 package org.unitedlands.factories.items;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -10,6 +11,8 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionType;
 import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Logger;
 
@@ -38,7 +41,7 @@ public class NexoFactory extends BaseItemFactory {
             if (customStack2 != null) {
                 return false;
             } else {
-                return item1.isSimilar(item2);
+                return getFilterName(item1).equals(getFilterName(item2));
             }
         }
     }
@@ -51,16 +54,8 @@ public class NexoFactory extends BaseItemFactory {
             itemStack.setAmount(amount);
             return itemStack;
         } else {
-            try {
-                var mat = Material.getMaterial(material);
-                if (mat != null) {
-                    return new ItemStack(mat, amount);
-                }
-            } catch (Exception ex) {
-                Logger.logError("Vanilla material \"" + material + "\" not found");
-            }
+            return getVanillaItemStack(material, amount);
         }
-        return null;
     }
 
     @Override
@@ -71,13 +66,10 @@ public class NexoFactory extends BaseItemFactory {
             itemStack.setAmount(ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1));
             return itemStack;
         } else {
-            try {
-                var mat = Material.getMaterial(material);
-                if (mat != null) {
-                    return new ItemStack(mat, ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1));
-                }
-            } catch (Exception ex) {
-                Logger.logError("Vanilla material \"" + material + "\" not found");
+            var itemStack = getVanillaItemStack(material, minAmount);
+            if (itemStack != null) {
+                itemStack.setAmount(ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1));
+                return itemStack;
             }
         }
         return null;
@@ -90,6 +82,7 @@ public class NexoFactory extends BaseItemFactory {
                 .collect(Collectors.toList());
         var customItems = NexoItems.items().stream().map(i -> NexoItems.idFromItem(i)).collect(Collectors.toList());
         items.addAll(customItems);
+        items.addAll(getVanillaPotions());
         return items;
     }
 
@@ -116,7 +109,7 @@ public class NexoFactory extends BaseItemFactory {
         if (customItem != null) {
             return NexoItems.idFromItem(customItem);
         } else {
-            return itemStack.getType().toString();
+            return getVanillaFilterName(itemStack);
         }
     }
 
@@ -129,7 +122,7 @@ public class NexoFactory extends BaseItemFactory {
             return Formatter.removeLegacyFormatting(
                     PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
         } else {
-            return Formatter.formatReadable(itemStack.getType().toString());
+            return getVanillaDisplayName(itemStack);
         }
     }
 
@@ -143,7 +136,7 @@ public class NexoFactory extends BaseItemFactory {
             if (customItem != null && contentCustomItem != null) {
                 return NexoItems.isSameId(contentItem, item);
             } else if (customItem == null && contentCustomItem == null) {
-                if (item.getType() == contentItem.getType())
+                if (getFilterName(item).equals(getFilterName(contentItem)))
                     return true;
             }
         }
@@ -190,4 +183,73 @@ public class NexoFactory extends BaseItemFactory {
 
     }
 
+    // Helpers
+
+    private String getVanillaFilterName(ItemStack itemStack) {
+        var type = itemStack.getType().toString();
+        if (!type.contains("POTION")) {
+            return type;
+        } else {
+            if (itemStack.getItemMeta() instanceof PotionMeta potionMeta) {
+                var potionType = type + ":" + potionMeta.getBasePotionType().toString();
+                return potionType;
+            } else {
+                return type;
+            }
+        }
+    }
+
+    private ItemStack getVanillaItemStack(String material, int amount) {
+        try {
+            if (material.contains("POTION")) {
+                var potion = material.split(":");
+                if (potion.length == 2) {
+                    var mat = Material.getMaterial(potion[0]);
+                    if (mat != null) {
+                        var itemStack = new ItemStack(mat, amount);
+                        if (itemStack.getItemMeta() instanceof PotionMeta potionMeta) {
+                            var baseType = PotionType.valueOf(potion[1]);
+                            potionMeta.setBasePotionType(baseType);
+                            itemStack.setItemMeta(potionMeta);
+                        }
+                        return itemStack;
+                    }
+                }
+            } else {
+                var mat = Material.getMaterial(material);
+                if (mat != null) {
+                    return new ItemStack(mat, amount);
+                }
+            }
+
+        } catch (Exception ignore) {
+            return null;
+        }
+        return null;
+    }
+
+    private List<String> getVanillaPotions() {
+        var potionsNames = List.of("POTION", "SPLASH_POTION", "LINGERING_POTION");
+        var potionTypes = PotionType.values();
+        List<String> potions = new ArrayList<>();
+        for (var name : potionsNames) {
+            for (var type : potionTypes) {
+                potions.add(name + ":" + type);
+            }
+        }
+        return potions;
+    }
+
+    private String getVanillaDisplayName(ItemStack itemStack) {
+        var type = itemStack.getType().toString();
+        if (type.contains("POTION")) {
+            if (itemStack.getItemMeta() instanceof PotionMeta potionMeta) {
+                type = Formatter.formatReadable(type) + " (" +
+                        Formatter.formatReadable(potionMeta.getBasePotionType().toString())
+                        + ")";
+            }
+            return type;
+        }
+        return Formatter.formatReadable(itemStack.getType().toString());
+    }
 }
