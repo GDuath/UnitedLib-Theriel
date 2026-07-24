@@ -75,6 +75,19 @@ public class VanillaItemFactory extends BaseItemFactory {
 
     @Override
     public String getDisplayName(ItemStack itemStack) {
+        return getVanillaDisplayName(itemStack);
+    }
+
+    private String getVanillaDisplayName(ItemStack itemStack) {
+        var type = itemStack.getType().toString();
+        if (type.contains("POTION")) {
+            if (itemStack.getItemMeta() instanceof PotionMeta potionMeta) {
+                type = Formatter.formatReadable(type) + " (" +
+                        Formatter.formatReadable(potionMeta.getBasePotionType().toString())
+                        + ")";
+            }
+            return type;
+        }
         return Formatter.formatReadable(itemStack.getType().toString());
     }
 

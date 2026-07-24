@@ -63,7 +63,7 @@ public class ItemsAdderFactory extends BaseItemFactory {
             itemStack.setAmount(ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1));
             return itemStack;
         } else {
-           var itemStack = getVanillaItemStack(material, minAmount);
+            var itemStack = getVanillaItemStack(material, minAmount);
             if (itemStack != null) {
                 itemStack.setAmount(ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1));
                 return itemStack;
@@ -125,7 +125,7 @@ public class ItemsAdderFactory extends BaseItemFactory {
         if (customItem != null) {
             return Formatter.removeLegacyFormatting(customItem.getDisplayName());
         } else {
-            return Formatter.formatReadable(itemStack.getType().toString());
+            return getVanillaDisplayName(itemStack);
         }
     }
 
@@ -208,6 +208,19 @@ public class ItemsAdderFactory extends BaseItemFactory {
             return null;
         }
         return null;
+    }
+
+    private String getVanillaDisplayName(ItemStack itemStack) {
+        var type = itemStack.getType().toString();
+        if (type.contains("POTION")) {
+            if (itemStack.getItemMeta() instanceof PotionMeta potionMeta) {
+                type = Formatter.formatReadable(type) + " (" +
+                        Formatter.formatReadable(potionMeta.getBasePotionType().toString())
+                        + ")";
+            }
+            return type;
+        }
+        return Formatter.formatReadable(itemStack.getType().toString());
     }
 
 }

@@ -122,7 +122,7 @@ public class NexoFactory extends BaseItemFactory {
             return Formatter.removeLegacyFormatting(
                     PlainTextComponentSerializer.plainText().serialize(customItem.getItemName()));
         } else {
-            return Formatter.formatReadable(itemStack.getType().toString());
+            return getVanillaDisplayName(itemStack);
         }
     }
 
@@ -238,5 +238,18 @@ public class NexoFactory extends BaseItemFactory {
             }
         }
         return potions;
+    }
+
+    private String getVanillaDisplayName(ItemStack itemStack) {
+        var type = itemStack.getType().toString();
+        if (type.contains("POTION")) {
+            if (itemStack.getItemMeta() instanceof PotionMeta potionMeta) {
+                type = Formatter.formatReadable(type) + " (" +
+                        Formatter.formatReadable(potionMeta.getBasePotionType().toString())
+                        + ")";
+            }
+            return type;
+        }
+        return Formatter.formatReadable(itemStack.getType().toString());
     }
 }
