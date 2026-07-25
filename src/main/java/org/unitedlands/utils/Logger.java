@@ -33,4 +33,12 @@ public class Logger {
     public static void logError(String message, String prefix) {
         plugin.getLogger().severe("[" + prefix + "] " + message);
     }
+
+    public static void debug(String message) {
+        plugin.getLogger().info(message);
+    }
+
+    public static void debug(String message, String prefix) {
+        plugin.getLogger().info("[" + prefix + "] " + message);
+    }
 }
