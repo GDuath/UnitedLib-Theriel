@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -162,6 +163,17 @@ public class ItemsAdderFactory extends BaseItemFactory {
         if (customBlock == null) {
             Logger.logError("Could not place block " + id);
             return;
+        }
+    }
+
+    @Override
+    public void removeBlock(Block block) {
+        var customBlock = CustomBlock.byAlreadyPlaced(block);
+        if (customBlock != null) {
+            customBlock.remove();
+            return;
+        } else {
+            block.setType(Material.AIR);
         }
     }
 

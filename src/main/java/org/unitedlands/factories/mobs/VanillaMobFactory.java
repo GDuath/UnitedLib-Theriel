@@ -2,11 +2,14 @@ package org.unitedlands.factories.mobs;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.unitedlands.utils.Logger;
+
+import net.kyori.adventure.text.Component;
 
 public class VanillaMobFactory extends BaseMobFactory {
 
@@ -31,9 +34,28 @@ public class VanillaMobFactory extends BaseMobFactory {
         return null;
     }
 
+    public UUID createMobAtLocation(String mobType, Location location, double level, String faction) {
+        Logger.logError("Unable to create mob " + mobType + " with faction, vanilla mobs can't have factions.");
+        return null;
+    }
+
     public UUID createMobAtLocation(String mobType, Location location, Player owner, double level) {
         Logger.logError("Unable to create mob " + mobType + " with owner, vanilla mobs can't be owned.");
         return null;
+    }
+
+    public UUID createMobAtLocation(String mobType, Location location, Player owner, double level, String faction) {
+        Logger.logError("Unable to create mob " + mobType + " with owner, vanilla mobs can't be owned.");
+        return null;
+    }
+
+    @Override
+    public void setName(UUID id, String name) {
+        var mob = Bukkit.getServer().getEntity(id);
+        if (mob != null) {
+            mob.customName(Component.text(name));
+        }
+        return;
     }
 
 }

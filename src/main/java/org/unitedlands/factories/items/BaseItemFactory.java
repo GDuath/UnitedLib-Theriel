@@ -3,6 +3,7 @@ package org.unitedlands.factories.items;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -44,5 +45,8 @@ public abstract class BaseItemFactory implements IItemFactory {
 
     @Override
     public abstract void placeBlock(String id, Location location);
+
+    @Override
+    public abstract void removeBlock(Block block);
 
 }
