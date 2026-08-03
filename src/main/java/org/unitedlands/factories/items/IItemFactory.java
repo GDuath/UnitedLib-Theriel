@@ -3,8 +3,10 @@ package org.unitedlands.factories.items;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
 
 public interface IItemFactory {
     boolean isCustomItem(ItemStack item);
@@ -20,4 +22,5 @@ public interface IItemFactory {
     boolean isItemInInventory(Inventory inventory, ItemStack item);
 
     void placeBlock(String id, Location location);
+    void removeBlock(Block block);
 }

@@ -14,6 +14,7 @@ public class ConfigFile {
     private final JavaPlugin plugin;
     private final String fileName;
     private File file;
+
     private YamlConfiguration config;
 
     public ConfigFile(JavaPlugin plugin, String fileName) {
@@ -38,8 +39,7 @@ public class ConfigFile {
         InputStream defStream = plugin.getResource(fileName);
         if (defStream != null) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(defStream, StandardCharsets.UTF_8)
-            );
+                    new InputStreamReader(defStream, StandardCharsets.UTF_8));
             config.setDefaults(defConfig);
             config.options().copyDefaults(true);
         }
@@ -56,4 +56,9 @@ public class ConfigFile {
     public YamlConfiguration get() {
         return config;
     }
+
+    public File getFile() {
+        return file;
+    }
+
 }

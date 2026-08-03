@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -120,7 +121,14 @@ public class VanillaItemFactory extends BaseItemFactory {
         location.getBlock().setType(material);
     }
 
+    
+
     // Helpers
+
+    @Override
+    public void removeBlock(Block block) {
+        block.setType(Material.AIR);
+    }
 
     private String getVanillaFilterName(ItemStack itemStack) {
         var type = itemStack.getType().toString();

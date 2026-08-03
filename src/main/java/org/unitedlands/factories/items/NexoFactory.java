@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -181,6 +182,23 @@ public class NexoFactory extends BaseItemFactory {
             Logger.logError("Could not place block " + id);
         }
 
+    }
+
+    @Override
+    public void removeBlock(Block block) {
+        try {
+            if (NexoBlocks.isCustomBlock(block)) {
+                NexoBlocks.remove(block.getLocation());
+            } else {
+                if (NexoFurniture.isFurniture(block.getLocation())) {
+                    NexoFurniture.remove(block.getLocation());
+                } else {
+                    block.setType(Material.AIR);
+                }   
+            }
+        } catch (Exception ex) {
+            Logger.logError("Could not remove block at " + block.getLocation());
+        }
     }
 
     // Helpers

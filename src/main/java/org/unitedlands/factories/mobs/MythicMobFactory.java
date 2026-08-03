@@ -43,10 +43,24 @@ public class MythicMobFactory extends BaseMobFactory {
     }
 
     public UUID createMobAtLocation(String mobType, Location location, Player owner, double level) {
+        return createMobAtLocation(mobType, location, owner, level, null);
+    }
+
+    public UUID createMobAtLocation(String mobType, Location location, double level, String faction) {
+        return createMobAtLocation(mobType, location, null, level, faction);
+    }
+
+    public UUID createMobAtLocation(String mobType, Location location, Player owner, double level, String faction) {
         var mythicMob = MythicBukkit.inst().getMobManager().getMythicMob(mobType).orElse(null);
         if (mythicMob != null) {
             ActiveMob activeMythicMob = MythicBukkit.inst().getMobManager().spawnMob(mobType, location, level);
-            activeMythicMob.setOwnerUUID(owner.getUniqueId());
+            if (owner != null) {
+                activeMythicMob.setOwnerUUID(owner.getUniqueId());
+            }
+            if (faction != null) {
+                Logger.log("Setting faction " + faction);
+                activeMythicMob.setFaction(faction);
+            }
             return activeMythicMob.getUniqueId();
         } else {
             Logger.logError("Unable to create custom mob " + mobType + ", vanilla mobs are not supported as minions.");
@@ -54,5 +68,12 @@ public class MythicMobFactory extends BaseMobFactory {
         return null;
     }
 
+    @Override
+    public void setName(UUID id, String name) {
+        var mythicMob = MythicBukkit.inst().getMobManager().getActiveMob(id);
+        if (mythicMob.isPresent()) {
+            mythicMob.get().setDisplayName(name);
+        }
+    }
 
 }

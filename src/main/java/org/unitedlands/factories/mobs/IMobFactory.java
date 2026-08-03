@@ -9,4 +9,8 @@ public interface IMobFactory {
     UUID createMobAtLocation(String mobType, Location location);
     UUID createMobAtLocation(String mobType, Location location, double level);
     UUID createMobAtLocation(String mobType, Location location, Player owner, double level);
+    UUID createMobAtLocation(String mobType, Location location, double level, String faction); 
+    UUID createMobAtLocation(String mobType, Location location, Player owner, double level, String faction); 
+
+    void setName(UUID id, String name);
 }
